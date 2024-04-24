@@ -1,0 +1,499 @@
+.TH IOTOP "8" "January 22, 2024"
+.SH NAME
+iotop \- simple top\-like I/O monitor
+.SH SYNOPSIS
+.B iotop
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+\fBiotop\fR watches I/O usage information available in the Linux kernel
+(requires 2.6.20 or later) and displays a table of current I/O usage by
+processes or threads on the system. At least the CONFIG_TASK_DELAY_ACCT,
+CONFIG_TASK_IO_ACCOUNTING, CONFIG_TASKSTATS and CONFIG_VM_EVENT_COUNTERS
+options need to be enabled in your Linux kernel build configuration.
+.PP
+Running \fBiotop\fR as non\-root user is possible by adding the NET_ADMIN
+capability. This can be done by e.g.:
+.RS
+
+.B
+$ sudo setcap 'cap_net_admin+eip' <path\-to>/iotop
+
+.RE
+Be warned that this will also allow other users to run it and get access to
+information that normally should not be available to them.
+.PP
+\fBiotop\fR displays columns for the I/O bandwidth read and written by each
+process/thread during the sampling period. It also displays the percentage
+of time the thread/process spent while swapping in and while waiting on I/O.
+For each process, its I/O priority (class/level) is shown.
+.PP
+In addition, the total I/O bandwidth read and written during the sampling
+period are displayed at the top of the interface.
+\fBTotal DISK READ\fR and \fBTotal DISK WRITE\fR values represent total read
+and write bandwidth between processes and kernel threads on one side and
+kernel block device subsystem on the other. While \fBCurrent DISK READ\fR and
+\fBCurrent DISK WRITE\fR values represent corresponding bandwidths for current
+disk I/O between the kernel block device subsystem and the underlying hardware
+(HDD, SSD, etc.). Thus \fBTotal\fR and \fBCurrent\fR values may not be equal at
+any given moment of time due to data caching and I/O operations reordering that
+take place inside the Linux kernel.
+.PP
+Use the \fBleft\fR and \fBright\fR arrows to select the sort column, \fBr\fR or
+\fBspace\fR to reverse the sorting order, \fBo\fR to toggle the \fB\-\-only\fR
+option (this uses the visible values from the \fBGRAPH\fR column or the
+\fBIO\fR column in case the \fBGRAPH\fR column is hidden), \fBp\fR to toggle
+the \fB\-\-processes\fR option, \fBa\fR to cycle between the
+\fB\-\-accumulated\fR, \fB\-\-accum\-bw\fR and normal operation,
+\fBi\fR to change the priority of a thread or a process's thread,
+\fBf\fR to change filtering by \fBUID\fR/\fBPID\fR (\fB\-\-user\fR and
+\fB\-\-pid\fR options), \fB1\-9\fR to toggle the visibility of the respective
+column, \fB0\fR to show all columns, \fBup\fR/\fBdown\fR arrows,
+\fBpage\-up\fR/\fBpage\-down\fR/\fBhome\fR/\fBend\fR keys to scroll and \fBq\fR
+to quit. Any unrecognized key will be ignored.
+.PP
+All processes or threads that have exited are displayed grayed for the same time
+as is visible in the \fBGRAPH\fR column or 3 seconds when it is hidden. The
+invalid data points in the \fBGRAPHS\fR column are displayed inverse or with
+letter \fBx\fR (see option \fB\-\-dead\-x\fR and \fBx\fR shortcut). When using
+unicode characters each position contains two datapoints and only the positions
+with two invalid data points are reversed.
+.PP
+It is possible for threads of a process to have different priority from their
+main process. This is shown with \fB!\fR in the \fBPRIO\fR column of the main
+process as e.g. \fB!be/4\fR.
+.PP
+Threads activity is always aggregated with and shown inside the main process.
+.PP
+When showing threads, they always appear below their main process and are sorted
+in the same way as the processes.
+.PP
+There are two ways to change the IO priority of a process or thread \- press
+\fBi\fR and use arrows to select the process or thread from the visible ones on
+screen or press \fBi\fR and type its TID (PID and TID have the same value for
+the main process). Then use \fBtab\fR and arrows to change the priority value
+and confirm with \fBenter\fR. Shortcuts \fBesc\fR or \fBq\fR will cancel this
+mode.
+.PP
+To change the UID and PID filters, press \fBf\fR and use \fBtab\fR to select the
+UID or PID field, then type the numerical id or \fBn\fR to remove the filter and
+confirm with \fBenter\fR. Filtering is always done by \fBTID\fR because it is
+unique. Note that for the main process PID is the same as TID. Shortcuts
+\fBesc\fR or \fBq\fR will cancel this mode.
+.PP
+Starting with Linux kernel 5.14.x task_delayacct is configurable at runtime and
+set to off by default. This setting can be changed in interactive mode by the
+\fBCtrl\-T\fR shortcut. In batch mode a warning is printed when the setting is
+OFF. From the command line this can be enabled by:
+.RS
+
+.B
+$ sudo sysctl kernel.task_delayacct=1
+
+.RE
+and disabled again by:
+.RS
+
+.B
+$ sudo sysctl kernel.task_delayacct=0
+
+.RE
+It is advisable to keep this option off when not using this or another
+monitoring program because when enabled it has some effect on system
+performance.
+.SH OPTIONS
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+Show the version number and exit
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Show usage information and exit
+.TP
+\fB\-H\fR, \fB\-\-help\-type\fR=\fITYPE\fR
+Set the type of interactive help shown. Accepted values for \fITYPE\fR are
+\fBnone\fR, \fBwin\fR and \fBinline\fR.
+.TP
+\fB\-o\fR, \fB\-\-only\fR
+Only show processes or threads actually doing I/O, instead of showing all
+processes or threads. This can be dynamically toggled by pressing \fBo\fR
+.TP
+\fB\-\-no\-only\fR
+Show all processes or threads
+.TP
+\fB\-b\fR, \fB\-\-batch\fR
+Turn on non\-interactive mode.
+Useful for logging I/O usage over time
+.TP
+\fB\-n\fR \fINUM\fR, \fB\-\-iter\fR=\fINUM\fR
+Set the number of iterations before quitting (never quit by default).
+This is most useful in non\-interactive mode
+.TP
+\fB\-d\fR \fISEC\fR, \fB\-\-delay\fR=\fISEC\fR
+Set the delay between iterations in seconds (1 second by default).
+Accepts non\-integer values such as 1.1 seconds
+.TP
+\fB\-p\fR \fIPID\fR, \fB\-\-pid\fR=\fIPID\fR
+A process/thread id to monitor (all by default)
+.TP
+\fB\-u\fR \fIUSER\fR, \fB\-\-user\fR=\fIUSER\fR
+A user id to monitor (all by default).
+The value will always be resolved first unless it is prefixed by \fB+\fR in
+which case it is treated as numeric only. Values that do not resolve but appear
+to be numeric are used as numeric
+.TP
+\fB\-P\fR, \fB\-\-processes\fR
+Only show processes. Normally \fBiotop\fR shows processes and all threads
+.TP
+\fB\-\-no\-processes\fR
+Show processes and all threads
+.TP
+\fB\-a\fR, \fB\-\-accumulated\fR
+Show accumulated I/O instead of bandwidth. In this mode, \fBiotop\fR shows the
+amount of I/O processes have done since the process or \fBiotop\fR started.
+Note that this option and \-\-accum\-bw are exclusive and they will turn each
+other off
+.TP
+\fB\-\-no\-accumulated\fR
+Show bandwidth (useful when changing config file with \fB\-\-write\fR)
+.TP
+\fB\-A\fR, \fB\-\-accum-bw\fR
+Show accumulated I/O as bandwidth for the whole sampling period. In this mode,
+\fBiotop\fR shows the amount of I/O per second for the whole period since the
+process or \fBiotop\fR started
+Note that this option and \-\-accumulated are exclusive and they will turn each
+other off
+.TP
+\fB\-\-no\-accum-bw\fR
+Show bandwidth (useful when changing config file with \fB\-\-write\fR)
+.TP
+\fB\-k\fR, \fB\-\-kilobytes\fR
+Use kilobytes instead of a human friendly unit.
+This mode is useful when scripting the batch mode of \fBiotop\fR. Instead of
+choosing the most appropriate unit \fBiotop\fR will display all sizes in
+kilobytes
+.TP
+\fB\-\-no\-kilobytes\fR
+Use human friendly units
+.TP
+\fB\-t\fR, \fB\-\-time\fR
+Add a timestamp on each line (implies \-\-batch). Each line will be prefixed by
+the current time
+.TP
+\fB\-c\fR, \fB\-\-fullcmdline\fR
+Show processes' full file path and parameters
+.TP
+\fB\-\-no\-fullcmdline\fR
+Show processes' names only
+.TP
+\fB\-1\fR, \fB\-\-hide\-pid\fR
+Hide PID/TID column
+.TP
+\fB\-\-show\-pid\fR
+Show PID/TID column
+.TP
+\fB\-2\fR, \fB\-\-hide\-prio\fR
+Hide PRIO column
+.TP
+\fB\-\-show\-prio\fR
+Show PRIO column
+.TP
+\fB\-3\fR, \fB\-\-hide\-user\fR
+Hide USER column
+.TP
+\fB\-\-show\-user\fR
+Show USER column
+.TP
+\fB\-4\fR, \fB\-\-hide\-read\fR
+Hide DISK READ column
+.TP
+\fB\-\-show\-read\fR
+Show DISK READ column
+.TP
+\fB\-5\fR, \fB\-\-hide\-write\fR
+Hide DISK WRITE column
+.TP
+\fB\-\-show\-write\fR
+Show DISK WRITE column
+.TP
+\fB\-6\fR, \fB\-\-hide\-swapin\fR
+Hide SWAPIN column
+.TP
+\fB\-\-show\-swapin\fR
+Show SWAPIN column
+.TP
+\fB\-7\fR, \fB\-\-hide\-io\fR
+Hide IO column
+.TP
+\fB\-\-show\-io\fR
+Show IO column
+.TP
+\fB\-8\fR, \fB\-\-hide\-graph\fR
+Hide GRAPH column
+.TP
+\fB\-\-show\-graph\fR
+Show GRAPH column
+.TP
+\fB\-9\fR, \fB\-\-hide\-command\fR
+Hide COMMAND column
+.TP
+\fB\-\-show\-command\fR
+Show COMMAND column
+.TP
+\fB\-g\fR \fITYPE\fR, \fB\-\-grtype\fR=\fITYPE\fR
+Set GRAPH column data source. Accepted values for \fITYPE\fR are \fBio\fR,
+\fBr\fR, \fBw\fR, \fBrw\fR and \fBsw\fR.
+.TP
+\fB\-R\fR, \fB\-\-reverse\-graph\fR
+Reverse GRAPH direction \- show most recent values on the right side
+.TP
+\fB\-\-no\-reverse\-graph\fR
+Do not reverse GRAPH direction \- show most recent values on the left side
+.TP
+\fB\-q\fR, \fB\-\-quiet\fR
+Suppress some lines of header (implies \-\-batch). This option can be specified
+up to three times to remove header lines
+.RS
+.PD 0
+.TP
+.B \-q
+column names are only printed on the first iteration,
+.TP
+.B \-qq
+column names are never printed,
+.TP
+.B \-qqq
+the I/O summary is never printed
+.RE
+.PD 1
+.TP
+\fB\-x\fR, \fB\-\-dead\-x\fR
+Show exited processes/threads with letter x instead of inverse background
+.TP
+\fB\-\-no\-dead\-x\fR
+Show exited processes/threads with inverse background
+.TP
+\fB\-e\fR, \fB\-\-hide\-exited\fR
+Hide exited processes
+.TP
+\fB\-\-show\-exited\fR
+Show exited processes
+.TP
+\fB\-l\fR, \fB\-\-no\-color\fR
+Do not colorize values
+.TP
+\fB\-\-color\fR
+Colorize values. This will override the effect of the environment variable
+\fBNO_COLOR\fR when explicitly specified on the command line.
+.TP
+\fB\-T\fR, \fB\-\-hide\-time\fR
+Do not show time clock in upper right corner
+.TP
+\fB\-\-show\-time\fR
+Show time clock in upper right corner
+.TP
+\fB\-\-si\fR
+Use SI units of \fB1000\fR when printing values. The default is non\-SI
+\fB1024\fR
+.TP
+\fB\-\-no\-si\fR
+Use non-SI units of \fB1024\fR when printing values
+.TP
+\fB\-\-threshold=1..10\fR
+Set the threshold to switch to next unit. The default value is \fB2\fR
+.TP
+\fB\-\-ascii\fR
+Disable using Unicode
+.TP
+\fB\-\-unicode\fR
+Use Unicode drawing chars
+.TP
+\fB\-W\fR, \fB\-\-write\fR
+Merge the preceding options to the current config, save the config and exit.
+Note that all options after this one will be ignored.
+.PD 1
+.SH KEYBOARD SHORTCUTS
+.TP
+\fBq\fR, \fBQ\fR
+Exit
+.TP
+\fBW\fR
+Save current settings to configuration file in
+\fB$HOME/.config/iotop/iotoprc\fR
+.TP
+\fBD\fR
+Reset all settings to their default values
+.TP
+\fB<space>\fR, \fBr\fR
+Toggle sort order
+.TP
+\fB<home>\fR
+Scroll to the top of the list
+.TP
+\fB<end>\fR
+Scroll to the bottom of the list
+.TP
+\fB<page\-up>\fR
+Scroll one screen up
+.TP
+\fB<page\-down>\fR
+Scroll one screen down
+.TP
+\fB<up>\fR
+Scroll one line up
+.TP
+\fB<down>\fR
+Scroll one line down
+.TP
+\fB<right>\fR
+Sort by next column
+.TP
+\fB<left>\fR
+Sort by previous column
+.TP
+\fB<esc>\fR
+Cancel ionice or filter selection. In case only the help window is open then
+close it
+.TP
+\fBo\fR, \fBO\fR
+Toggle showing only processes with IO activity
+.TP
+\fBp\fR, \fBP\fR
+Toggle showing processes/threads
+.TP
+\fBa\fR, \fBA\fR
+Cycle showing accumulated/accum-bw/current values
+.TP
+\fB?\fR
+Toggle showing inline help
+.TP
+\fBh\fR, \fBH\fR
+Toggle showing window help
+.TP
+\fBc\fR, \fBC\fR
+Toggle showing full command line
+.TP
+\fB1\fR, \fB2\fR, \fB3\fR, \fB4\fR, \fB5\fR, \fB6\fR, \fB7\fR, \fB8\fR, \fB9\fR
+Toggle showing the column (column number corresponds to the shortcut)
+.TP
+\fB0\fR
+Show all columns
+.TP
+\fBg\fR, \fBG\fR
+Cycle GRAPH source (\fBIO\fR=IO, \fBR\fR=DISK READ , \fBW\fR=DISK WRITE,
+\fBR+W\fR=DISK READ+DISK WRITE, \fBSW\fR=SWAPIN). Using \fBg\fR will cycle
+forward and \fBG\fR will cycle backward.
+.TP
+\fBR\fR
+Toggle reverse GRAPH direction
+.TP
+\fBi\fR, \fBI\fR
+IOnice a process/thread (depends on process/thread display mode)
+.TP
+\fBf\fR, \fBF\fR
+Change UID and PID filters
+.TP
+\fBu\fR, \fBU\fR
+Toggle using Unicode/ASCII characters for pseudo graph
+.TP
+\fBl\fR, \fBL\fR
+Toggle colorizing values
+.TP
+\fBx\fR, \fBX\fR
+Toggle the display mode of exited processes/threads between letter x and inverse
+background
+.TP
+\fBe\fR, \fBE\fR
+Toggle the display of exited processes
+.TP
+\fBT\fR
+Toggle the display of time clock in upper right corner
+.TP
+\fBs\fR, \fBS\fR
+Toggle freeze of data collection
+.TP
+\fBCtrl\-B\fR, \fBb\fR
+Toggle SI units
+.TP
+\fBCtrl\-R\fR, \fBt\fR
+Cycle unit threshold
+.TP
+\fBCtrl\-T\fR
+Toggle task_delayacct kernel sysctl
+.TP
+\fBCtrl\-L\fR
+Redraw screen
+.TP
+\fB/\fR
+Change search regular expression. While the search regular expression is being
+edited, there is an indicator next to it that shows if the expression is valid.
+The search is confirmed by \fB<enter>\fR or cancelled by \fB<esc>\fR.
+
+\fBList of shortcuts in the editor:\fR
+.RS
+.TP
+\fB<esc>\fR
+Cancel editing and remove the regular expression filter
+.TP
+\fB<enter>\fR
+Confirm the current regular expression and exit edit mode. In case the regular
+expression is empty or invalid it will match everything.
+.TP
+\fBAlt/Meta\-<backspace>\fR, \fBCtrl\-W\fR
+Delete one word from cursor to the left
+.TP
+\fBAlt/Meta\-D\fR
+Delete one word from cursor to the right
+.TP
+\fBAlt/Meta\-B\fR, \fBCtrl\-<left>\fR
+Move the cursor to the beginning of the word on the left
+.TP
+\fBAlt/Meta\-F\fR, \fBCtrl\-<right>\fR
+Move the cursor after the end of the word on the right
+.TP
+\fBCtrl\-A\fR, \fB<home>\fR
+Move the cursor to the leftmost position
+.TP
+\fBCtrl\-E\fR, \fB<end>\fR
+Move the cursor after the last character
+.TP
+\fBCtrl\-B\fR, \fB<left>\fR
+Move the cursor to the left
+.TP
+\fBCtrl\-F\fR, \fB<right>\fR
+Move the cursor to the right
+.TP
+\fBCtrl\-H\fR, \fB<backspace>\fR
+Delete the character left of cursor
+.TP
+\fBCtrl\-D\fR, \fB<del>\fR
+Delete the character under the cursor
+.TP
+\fBCtrl\-K\fR
+Delete from the character under the cursor to the end of the line
+.TP
+\fBCtrl\-U\fR
+Delete everything
+.TP
+\fB[anything\-else]\fR
+Non-printable characters are ignored. Normal characters are inserted before
+the character under the cursor. UTF-8 sequences are parsed and treated
+as a single character. Unicode combining characters will be appended to the
+character under the cursor.
+.RE
+.SH ENVIRONMENT
+As per the recommendation of \fBhttps://www.no\-color.org/\fR iotop honors the
+contents of the environment variable \fBNO_COLOR\fR and when it is set to a non
+empty string, all color output is suppressed.
+.SH SEE ALSO
+.BR ionice (1),
+.BR top (1),
+.BR vmstat (1),
+.BR atop (1),
+.BR htop (1)
+.SH AUTHOR
+The original Python iotop implementation was written by Guillaume Chazarain.
+This rewrite in C was started in 2014 by Vyacheslav Trushkin and reworked to
+include all missing features from the original Python code and several new ones
+from 2020 to 2024 by Boian Bonev.
+.PP
+This manual page was started by Paul Wise for the Debian project and is placed
+in the public domain.

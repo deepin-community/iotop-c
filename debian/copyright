@@ -1,10 +1,18 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: template-repository
-Source: https://github.com/deepin-community/template-repository
+Upstream-Name: iotop-c
+Upstream-Contact: Boian Bonev <bbonev@ipacct.com>
+Source: https://github.com/Tomas-M/iotop
 
 Files: *
-Copyright: 2023 Tsic404 <liuheng@deepin.org>
-License: GPL-2+
+Copyright: 2014 Vyacheslav Trushkin
+           2020-2024 Boian Bonev <bbonev@ipacct.com>
+License: GPL-2.0+
+
+Files: debian/*
+Copyright: 2020-2024 Boian Bonev <bbonev@ipacct.com>
+License: GPL-2.0+
+
+License: GPL-2.0+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation; either version 2 of the License, or
