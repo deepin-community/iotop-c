@@ -1,5 +1,158 @@
-template-repository (1.0-1) unstable; urgency=medium
+iotop-c (1.26-1) unstable; urgency=medium
 
-  * Initial release
+  * Update to new upstream release of 1.26
+    - Clock in upper right corner
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 03 Feb 2024 13:45:39 +0000
+
+iotop-c (1.25-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.25
+    - Fix ESC makes iotop busy loop
+    - Fix the logic in 'only' option
+
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 14 Oct 2023 08:49:48 +0000
+
+iotop-c (1.24-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.24
+    - Fix a bug with graphs in ASCII mode
+    - Show the status of the configuration in the help window
+
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 30 Sep 2023 23:04:47 +0000
+
+iotop-c (1.23-1) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Re-export upstream signing key without extra signatures.
+  * Fix day-of-week for changelog entry 1.22-1.
+  * Update standards version to 4.6.1, no changes needed.
+
+  [ Boian Bonev ]
+  * Update standards version to 4.6.2, no changes needed.
+  * Update to new upstream release of 1.23
+  * Fix d/watch
+
+ -- Boian Bonev <bbonev@ipacct.com>  Tue, 24 Jan 2023 00:00:31 +0000
+
+iotop-c (1.22-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.22
+  * Update standards to 4.6.1, no changes
+
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 09 Jul 2022 23:54:01 +0000
+
+iotop-c (1.21-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.21
+    - Better support for disabled task_delayacct sysctl
+    - Add history and graph for all data
+    - Restore simple inline help
+  * Remove filenamemangle from d/watch
+
+ -- Boian Bonev <bbonev@ipacct.com>  Wed, 26 Jan 2022 15:20:46 +0000
+
+iotop-c (1.20-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.20
+    - Add support for kernel 5.14+ task_delayacct sysctl
+
+ -- Boian Bonev <bbonev@ipacct.com>  Mon, 04 Oct 2021 23:56:24 +0000
+
+iotop-c (1.19-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.19
+    - Do not crash if TERM is not set
+
+ -- Boian Bonev <bbonev@ipacct.com>  Tue, 21 Sep 2021 08:30:10 +0000
+
+iotop-c (1.18-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.18
+  * Update standards to 4.6.0
+
+ -- Boian Bonev <bbonev@ipacct.com>  Tue, 24 Aug 2021 02:45:57 +0000
+
+iotop-c (1.17-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.17
+
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 06 Feb 2021 01:02:03 +0000
+
+iotop-c (1.16-1) unstable; urgency=medium
+
+  * Update standards to 4.5.1
+  * Update to new upstream release of 1.16
+
+ -- Boian Bonev <bbonev@ipacct.com>  Mon, 25 Jan 2021 05:01:28 +0000
+
+iotop-c (1.15-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.15
+    - fix read return value converted to unsugned (and possible OOB in the rare
+      case that happens
+    - fix keypress ignored during screen refresh
+    - fix Ctrl-L to really redraw screen
+
+ -- Boian Bonev <bbonev@ipacct.com>  Wed, 30 Sep 2020 14:49:57 +0000
+
+iotop-c (1.14-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.12
+    - fix SIGSEGV in humanize_val on large values
+    - convert the pseudo-graph to a normal column
+    - remove option -s (replaced by -8 with inverse logic)
+    - add sort by the pseudo-graph column
+    - make sort by the pseudo-graph the default
+    - implement hiding columns by options and shortcuts 1...9
+    - revise column widths
+    - rewrite curses event loop to make data collection separate from refresh
+    - fix sorting (proper double value comparison)
+  * Update to new upstream release of 1.14
+    - fix off-by-one errors in size calculation to avoid truncated strings
+    - unify snprintf usage according to glibc semantics
+    - keep both variants of cmdline in memory for immediate display change
+      (hotkey c)
+    - rewrite get_vm_counters with simpler io
+    - nuke the remnants of -s/--iohistory options
+    - be more strict to unrecognized arguments
+  * Remove debian folder from release tarballs (lintian: no-debian-changes)
+  * Change release tarballs url in debian/watch
+
+ -- Boian Bonev <bbonev@ipacct.com>  Thu, 24 Sep 2020 00:28:13 +0000
+
+iotop-c (1.11-1) unstable; urgency=medium
+
+  * Update to new upstream release of 1.10
+    - add pseudo graphs for total IO activity
+    - add detection of UTF support, fallback to ASCII
+    - add shortcut to toggle UTF/ASCII
+    - improve build checks for printf-like ncurses API
+  * Convert alternatives to debhelper instead of shell scripts
+  * Add debian/upstream/metadata
+  * Update to new upstream release of 1.11
+    - better detection of locale/terminal
+    - add graph and UTF/ASCII toggles to help
+    - increase history to 60 datapoints
+    - make graphs scale as screen size changes
+    - always keep track of history data (graph display toggle no
+      longer affects the data collected)
+    - use the history data as 'only' filter in interactive mode
+  * Add build-dep on pkg-config
+  * wrap-and-sort in the proper way
+
+ -- Boian Bonev <bbonev@ipacct.com>  Wed, 02 Sep 2020 20:41:00 +0300
+
+iotop-c (1.9-1) unstable; urgency=medium
+
+  * Add Vcs-* tags
+  * Update to new upstream release of 1.9
+  * Bump debhelper-compat to 13
+
+ -- Boian Bonev <bbonev@ipacct.com>  Sat, 22 Aug 2020 02:10:44 +0000
+
+iotop-c (1.8-1) unstable; urgency=medium
+
+  * Initial release (Closes: #963612)
+
+ -- Boian Bonev <bbonev@ipacct.com>  Thu, 02 Jul 2020 09:20:46 +0000
